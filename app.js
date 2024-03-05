@@ -1,28 +1,34 @@
 import express from "express";
-import cors from "cors";
 import dotenv from "dotenv";
-import DbConnection from "./databse/DbConnection.js";
-import { errorMiddleware } from './error/error.js'
-import reservationRoutes from "./routes/reservationRoutes.js";
-
-dotenv.config({ path: './config/.env' });
+import cors from "cors";
+import { errorMiddleware } from "./middlewares/error.js";
+import reservationRouter from "./routes/reservationRoute.js";
+import { dbConnection } from "./database/dbConnection.js"; // Adjusted import statement
 
 const app = express();
+dotenv.config({ path: "./config.env" });
 
-app.use(cors({
+app.use(
+  cors({
     origin: [process.env.FRONT_URL],
     methods: ["POST"],
-    credentials: true
-}));
-
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/api/v1/reservation', reservationRoutes)
+app.use("/api/v1/reservation", reservationRouter);
 
-// Call the function to establish database connection
-DbConnection();
+app.get("/", (req, res, next) => {
+  return res.status(200).json({
+    success: true,
+    message: "HELLO WORLD AGAIN"
+  })
+});
 
-app.use(errorMiddleware)
+dbConnection();
+
+app.use(errorMiddleware);
 
 export default app;
